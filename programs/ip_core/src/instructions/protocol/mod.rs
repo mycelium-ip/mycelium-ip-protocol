@@ -1,7 +1,3 @@
-//! Protocol instruction handlers.
-//!
-//! Handles protocol-level operations: config and treasury management.
-
 pub mod initialize_config;
 pub mod initialize_treasury;
 pub mod update_config;

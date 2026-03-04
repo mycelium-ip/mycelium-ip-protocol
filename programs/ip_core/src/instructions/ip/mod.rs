@@ -1,7 +1,3 @@
-//! IP instruction handlers.
-//!
-//! Handles IP registration and transfer operations.
-
 pub mod create_ip;
 pub mod transfer_ip;
 

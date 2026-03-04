@@ -1,7 +1,3 @@
-//! Initialize protocol configuration instruction.
-//!
-//! Creates the singleton ProtocolConfig account.
-
 use anchor_lang::prelude::*;
 
 use crate::state::{ProtocolConfig, PROTOCOL_CONFIG_SIZE};

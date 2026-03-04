@@ -1,7 +1,3 @@
-//! Instruction handlers for the ip_core program.
-//!
-//! Each domain has its own submodule with specific instruction handlers.
-
 pub mod derivative;
 pub mod entity;
 pub mod ip;

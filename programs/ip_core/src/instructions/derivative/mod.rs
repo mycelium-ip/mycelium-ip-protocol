@@ -1,7 +1,3 @@
-//! Derivative instruction handlers.
-//!
-//! Handles derivative link creation and management operations.
-
 pub mod create_derivative_link;
 pub mod update_derivative_license;
 

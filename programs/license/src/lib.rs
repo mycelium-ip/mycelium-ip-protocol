@@ -1,32 +1,3 @@
-//! Mycelium IP Protocol - License Program
-//!
-//! A two-layer licensing model for IP assets on Solana.
-//!
-//! This program provides:
-//! - License creation and management for IP assets
-//! - License grants to entities
-//! - Validation helpers for derivative creation
-//!
-//! ## Design Overview
-//!
-//! The License program implements a two-layer model:
-//!
-//! 1. **License** — Global per IP (`["license", origin_ip]`), defines terms
-//! 2. **LicenseGrant** — Per grantee (`["license_grant", license, grantee_entity]`),
-//!    tracks who acquired the license
-//!
-//! This separation enables:
-//! - One license definition per IP asset
-//! - Multiple grantees per license
-//! - Independent grant expiration from license terms
-//! - `ip_core`'s `create_derivative_link` to validate grantee holds a valid license grant
-//!
-//! ## Invariants
-//!
-//! - Derivative IPs cannot create independent licenses — they inherit parent IP's licensing terms.
-//! - No account may contain royalty, governance, revenue, or economic distribution logic.
-//! - License program validates existence and structural correctness only — no economic enforcement.
-
 use anchor_lang::prelude::*;
 
 pub mod constants;

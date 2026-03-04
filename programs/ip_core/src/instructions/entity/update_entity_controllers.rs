@@ -1,7 +1,3 @@
-//! Update entity controllers instruction.
-//!
-//! Add or remove controllers from an entity.
-
 use anchor_lang::prelude::*;
 
 use crate::constants::MAX_CONTROLLERS;

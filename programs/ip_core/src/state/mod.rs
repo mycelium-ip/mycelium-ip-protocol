@@ -1,7 +1,3 @@
-//! State account definitions for the ip_core program.
-//!
-//! Each account is defined in its own file with PDA seeds, space calculations, and invariants.
-
 pub mod derivative_link;
 pub mod entity;
 pub mod ip_account;

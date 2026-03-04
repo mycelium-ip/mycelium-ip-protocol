@@ -1,7 +1,3 @@
-//! Create entity instruction.
-//!
-//! Creates a new entity with the creator as the first controller.
-
 use anchor_lang::prelude::*;
 
 use crate::constants::{MAX_CONTROLLERS, MAX_HANDLE_LENGTH};

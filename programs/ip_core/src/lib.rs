@@ -1,18 +1,3 @@
-//! Mycelium IP Protocol - Core Registry Program
-//!
-//! A deterministic, neutral IP claim registry on Solana.
-//!
-//! This program provides:
-//! - Protocol configuration and treasury management
-//! - Entity registration with multisig controllers
-//! - Metadata schema definitions
-//! - IP registration with ownership tracking
-//! - Derivative link management
-//!
-//! The Core Program is intentionally neutral, deterministic, and minimal.
-//! It does NOT implement royalty logic, payment distribution, arbitration,
-//! authorship validation, content verification, account freezing, or governance.
-
 use anchor_lang::prelude::*;
 
 pub mod constants;
@@ -157,4 +142,3 @@ pub mod ip_core {
         instructions::derivative::update_derivative_license::handler(ctx, license_program_id)
     }
 }
-

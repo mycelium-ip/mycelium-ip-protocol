@@ -1,7 +1,3 @@
-//! Create metadata schema instruction.
-//!
-//! Creates an immutable metadata schema definition.
-
 use anchor_lang::prelude::*;
 
 use crate::constants::{MAX_CID_LENGTH, MAX_SCHEMA_ID_LENGTH, MAX_VERSION_LENGTH};

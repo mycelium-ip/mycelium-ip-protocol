@@ -1,12 +1,3 @@
-//! Metadata schema account.
-//!
-//! PDA Seeds: `["metadata_schema", schema_id, version]`
-//!
-//! Invariants:
-//! - Immutable after initialization
-//! - id + version must be unique
-//! - CID must not be empty
-
 use anchor_lang::prelude::*;
 
 use crate::constants::{MAX_CID_LENGTH, MAX_SCHEMA_ID_LENGTH, MAX_VERSION_LENGTH};

@@ -1,7 +1,3 @@
-//! Withdraw from protocol treasury instruction.
-//!
-//! Transfers tokens from a treasury-owned SPL token account.
-
 use anchor_lang::prelude::*;
 use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 

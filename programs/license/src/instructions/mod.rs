@@ -1,7 +1,3 @@
-//! Instruction handlers for the license program.
-//!
-//! Each instruction is defined in its own file.
-
 pub mod create_license;
 pub mod create_license_grant;
 pub mod revoke_license;

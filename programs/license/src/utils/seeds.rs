@@ -1,8 +1,3 @@
-//! PDA seed derivation helpers.
-//!
-//! All PDA seeds are defined here for deterministic account derivation.
-//! No randomness, no counters, no dynamic derivation.
-
 use crate::constants::{LICENSE_GRANT_SEED, LICENSE_SEED};
 
 /// Returns seeds for license PDA: `["license", origin_ip]`

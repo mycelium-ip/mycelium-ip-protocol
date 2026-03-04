@@ -1,17 +1,3 @@
-//! License account.
-//!
-//! PDA Seeds: `["license", origin_ip]`
-//!
-//! Invariants:
-//! - origin_ip must reference a valid IPAccount owned by ip_core.
-//! - origin_ip must NOT be a derivative IP (has no parent DerivativeLink where child_ip == origin_ip).
-//! - Derivative IPs inherit licensing terms from their parent — they cannot create independent licenses.
-//! - authority is the Entity that owns the IP at creation time.
-//! - authority is immutable after creation.
-//! - origin_ip is immutable after creation.
-//! - License never expires (terms are permanent).
-//! - Only one license may exist per IP.
-
 use anchor_lang::prelude::*;
 
 /// Space calculation for License:

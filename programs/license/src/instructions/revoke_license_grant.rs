@@ -1,7 +1,3 @@
-//! Revoke license grant instruction.
-//!
-//! Closes a license grant account and returns rent to authority signer.
-
 use anchor_lang::prelude::*;
 use ip_core::state::Entity;
 

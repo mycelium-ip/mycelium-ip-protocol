@@ -1,7 +1,3 @@
-//! Initialize protocol treasury instruction.
-//!
-//! Creates the singleton ProtocolTreasury account.
-
 use anchor_lang::prelude::*;
 
 use crate::error::IpCoreError;

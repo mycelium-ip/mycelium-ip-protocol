@@ -1,7 +1,3 @@
-//! Update protocol configuration instruction.
-//!
-//! Updates the singleton ProtocolConfig account.
-
 use anchor_lang::prelude::*;
 
 use crate::error::IpCoreError;

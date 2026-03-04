@@ -1,8 +1,3 @@
-//! Cross-program validation helpers.
-//!
-//! Contains helpers for validating accounts owned by other programs.
-//! No state mutations.
-
 use anchor_lang::prelude::*;
 
 use crate::error::LicenseError;

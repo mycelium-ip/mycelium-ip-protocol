@@ -1,14 +1,3 @@
-//! IP (Intellectual Property) account.
-//!
-//! PDA Seeds: `["ip", registrant_entity, content_hash]`
-//!
-//! Invariants:
-//! - content_hash immutable
-//! - registrant_entity immutable
-//! - PDA never changes
-//! - current_owner_entity mutable only via transfer
-//! - No royalty or governance fields
-
 use anchor_lang::prelude::*;
 
 /// Space calculation for IpAccount:

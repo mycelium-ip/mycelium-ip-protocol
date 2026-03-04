@@ -1,7 +1,3 @@
-//! Entity instruction handlers.
-//!
-//! Handles entity creation and management operations.
-
 pub mod create_entity;
 pub mod update_entity_controllers;
 

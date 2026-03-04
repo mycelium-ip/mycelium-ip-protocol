@@ -1,12 +1,3 @@
-//! Protocol configuration account.
-//!
-//! PDA Seeds: `["config"]`
-//!
-//! Invariants:
-//! - Exactly one instance may exist
-//! - Must be initialized before any entity or IP creation
-//! - Authority is used for config mutation only
-
 use anchor_lang::prelude::*;
 
 /// Space calculation for ProtocolConfig:

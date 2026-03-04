@@ -1,15 +1,3 @@
-//! Entity account.
-//!
-//! PDA Seeds: `["entity", creator_pubkey, handle]`
-//!
-//! Invariants:
-//! - controllers.len() ∈ [1, 5]
-//! - signature_threshold ∈ [1, controllers.len()]
-//! - creator must be in controllers
-//! - handle immutable
-//! - creator immutable
-//! - created_at immutable
-
 use anchor_lang::prelude::*;
 
 use crate::constants::{MAX_CONTROLLERS, MAX_HANDLE_LENGTH};

@@ -1,14 +1,3 @@
-//! Metadata account.
-//!
-//! PDA Seeds:
-//! - Entity: `["metadata", "entity", entity_pubkey, revision]`
-//! - IP: `["metadata", "ip", ip_pubkey, revision]`
-//!
-//! Invariants:
-//! - Immutable after creation
-//! - Schema must reference a valid MetadataSchema
-//! - Revision must equal parent.current_metadata_revision + 1
-
 use anchor_lang::prelude::*;
 
 use crate::constants::MAX_CID_LENGTH;

@@ -1,13 +1,3 @@
-//! Protocol treasury account.
-//!
-//! PDA Seeds: `["treasury"]`
-//!
-//! Invariants:
-//! - Exactly one instance
-//! - Config must match ProtocolConfig PDA
-//! - Acts as authority over SPL token accounts
-//! - Does NOT hold funds directly
-
 use anchor_lang::prelude::*;
 
 /// Space calculation for ProtocolTreasury:

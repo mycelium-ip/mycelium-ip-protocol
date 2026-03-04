@@ -1,7 +1,3 @@
-//! Transfer IP instruction.
-//!
-//! Transfers ownership of an IP to a new entity.
-
 use anchor_lang::prelude::*;
 
 use crate::error::IpCoreError;

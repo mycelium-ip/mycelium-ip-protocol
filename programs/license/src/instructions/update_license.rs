@@ -1,7 +1,3 @@
-//! Update license instruction.
-//!
-//! Updates license terms (derivatives_allowed only).
-
 use anchor_lang::prelude::*;
 use ip_core::state::Entity;
 

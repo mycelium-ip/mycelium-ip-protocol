@@ -1,14 +1,3 @@
-//! Derivative link account.
-//!
-//! PDA Seeds: `["derivative", parent_ip, child_ip]`
-//!
-//! Invariants:
-//! - parent_ip must exist
-//! - child_ip must exist
-//! - license must be owned by LICENSE_PROGRAM_ID
-//! - Immutable except optional license update
-//! - No economic fields
-
 use anchor_lang::prelude::*;
 
 /// Space calculation for DerivativeLink:

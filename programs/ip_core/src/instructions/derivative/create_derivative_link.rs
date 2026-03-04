@@ -1,7 +1,3 @@
-//! Create derivative link instruction.
-//!
-//! Links a child IP to a parent IP under a license.
-
 use anchor_lang::prelude::*;
 
 use crate::error::IpCoreError;

@@ -1,8 +1,3 @@
-//! Multisig validation utilities.
-//!
-//! Pure validation logic for signature threshold verification.
-//! No account mutation.
-
 use crate::error::IpCoreError;
 use anchor_lang::prelude::*;
 

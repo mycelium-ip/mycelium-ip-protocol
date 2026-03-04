@@ -1,12 +1,10 @@
-//! Create entity metadata instruction.
-//!
-//! Attaches metadata to an entity.
-
 use anchor_lang::prelude::*;
 
 use crate::constants::MAX_CID_LENGTH;
 use crate::error::IpCoreError;
-use crate::state::{Entity, MetadataAccount, MetadataParentType, MetadataSchema, METADATA_ACCOUNT_SIZE};
+use crate::state::{
+    Entity, MetadataAccount, MetadataParentType, MetadataSchema, METADATA_ACCOUNT_SIZE,
+};
 use crate::utils::multisig::{extract_signer_keys, validate_multisig_keys};
 use crate::utils::seeds::{ENTITY_SEED, METADATA_SEED};
 use crate::utils::validation::validate_cid_not_empty;
@@ -72,7 +70,11 @@ pub fn handler(
 
     // Validate multisig
     let signer_keys = extract_signer_keys(ctx.remaining_accounts);
-    validate_multisig_keys(&signer_keys, &entity.controllers, entity.signature_threshold)?;
+    validate_multisig_keys(
+        &signer_keys,
+        &entity.controllers,
+        entity.signature_threshold,
+    )?;
 
     // Validate revision is exactly current + 1
     let expected_revision = entity

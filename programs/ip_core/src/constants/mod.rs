@@ -1,8 +1,3 @@
-//! Global constants for the ip_core program.
-//!
-//! These limits are fixed and must not be modified dynamically.
-//! No dynamic sizing is permitted.
-
 /// Maximum length for metadata schema IDs.
 pub const MAX_SCHEMA_ID_LENGTH: usize = 32;
 

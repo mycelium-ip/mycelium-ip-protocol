@@ -1,7 +1,3 @@
-//! Create IP instruction.
-//!
-//! Registers a new IP with payment to the protocol treasury.
-
 use anchor_lang::prelude::*;
 use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 

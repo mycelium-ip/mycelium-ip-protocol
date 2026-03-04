@@ -1,8 +1,3 @@
-//! PDA seed derivation helpers.
-//!
-//! All PDA seeds are defined here for deterministic account derivation.
-//! No randomness, no counters, no dynamic derivation.
-
 use crate::constants::{MAX_HANDLE_LENGTH, MAX_SCHEMA_ID_LENGTH, MAX_VERSION_LENGTH};
 
 /// Seed prefix for protocol config PDA.

@@ -1,7 +1,3 @@
-//! Create license grant instruction.
-//!
-//! Creates a new license grant for a grantee entity.
-
 use anchor_lang::prelude::*;
 use ip_core::state::Entity;
 

@@ -1,7 +1,3 @@
-//! Update derivative license instruction.
-//!
-//! Updates the license on an existing derivative link.
-
 use anchor_lang::prelude::*;
 
 use crate::error::IpCoreError;

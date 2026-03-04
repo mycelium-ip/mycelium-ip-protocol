@@ -1,7 +1,3 @@
-//! Create license instruction.
-//!
-//! Creates a new license for an IP.
-
 use anchor_lang::prelude::*;
 use ip_core::state::{Entity, IpAccount};
 

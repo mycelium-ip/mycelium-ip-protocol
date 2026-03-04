@@ -1,7 +1,3 @@
-//! Canonical error types for the license program.
-//!
-//! All protocol errors are defined here with explicit error codes.
-
 use anchor_lang::prelude::*;
 
 /// Canonical error enum for the license program.

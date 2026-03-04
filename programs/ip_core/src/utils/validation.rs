@@ -1,7 +1,3 @@
-//! Pure validation helpers.
-//!
-//! No state mutation. Only validation logic.
-
 use crate::constants::MAX_HANDLE_LENGTH;
 use crate::error::IpCoreError;
 use anchor_lang::prelude::*;

@@ -1,17 +1,3 @@
-//! License grant account.
-//!
-//! PDA Seeds: `["license_grant", license, grantee_entity]`
-//!
-//! Invariants:
-//! - license must reference a valid License account owned by this program.
-//! - grantee must reference a valid Entity account owned by ip_core.
-//! - expiration = 0 means no expiration (permanent grant).
-//! - expiration > 0 means unix timestamp after which grant is invalid.
-//! - One grant per (license, grantee) pair.
-//! - license is immutable.
-//! - grantee is immutable.
-//! - granted_at is immutable.
-
 use anchor_lang::prelude::*;
 
 /// Space calculation for LicenseGrant:
