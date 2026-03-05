@@ -33,7 +33,7 @@
 
 5. **Create** [utils/validation.rs](programs/ip_core/src/utils/validation.rs): Pure validation helpers:
 
-   - `validate_handle(handle: &[u8])` → lowercase alphanumeric, 1-32 chars, regex `^[a-z0-9]{1,32}$`
+   - `validate_handle(handle: &[u8])` → lowercase alphanumeric with underscores, 1-32 chars, regex `^[a-z0-9_]{1,32}$`
    - `validate_cid_not_empty(cid: &[u8])`
    - `validate_revision_increment(current, expected)`
 

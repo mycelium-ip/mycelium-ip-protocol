@@ -9,6 +9,7 @@ import {
   mintTo,
 } from "@solana/spl-token";
 import { expect } from "chai";
+import { padBytes } from "./utils/helper";
 
 describe("ip_core derivative with license", () => {
   const provider = anchor.AnchorProvider.env();
@@ -28,14 +29,6 @@ describe("ip_core derivative with license", () => {
   let childIpPda: PublicKey;
   let licensePda: PublicKey;
   let licenseGrantPda: PublicKey;
-
-  // Helper to pad bytes
-  const padHandle = (handle: string): number[] => {
-    const bytes = Buffer.from(handle);
-    const padded = Buffer.alloc(32);
-    bytes.copy(padded);
-    return Array.from(padded);
-  };
 
   const randomHash = (): number[] =>
     Array.from(Keypair.generate().publicKey.toBytes());
@@ -120,7 +113,7 @@ describe("ip_core derivative with license", () => {
     }
 
     // Create entity
-    const handle = padHandle("derivowner2");
+    const handle = padBytes("deriv_owner2", 32);
     [entityPda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from("entity"),
@@ -204,7 +197,7 @@ describe("ip_core derivative with license", () => {
 
     await licenseProgram.methods
       .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-      .accounts({
+      .accountsPartial({
         license: licensePda,
         authorityEntity: entityPda,
         granteeEntity: entityPda, // Self-grant for testing
@@ -395,7 +388,7 @@ describe("ip_core derivative with license", () => {
 
       await licenseProgram.methods
         .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: newLicensePda,
           authorityEntity: entityPda,
           granteeEntity: entityPda,
@@ -570,7 +563,7 @@ describe("ip_core derivative with license", () => {
 
       await licenseProgram.methods
         .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: noDerivLicensePda,
           authorityEntity: entityPda,
           granteeEntity: entityPda,
@@ -666,7 +659,7 @@ describe("ip_core derivative with license", () => {
         .rpc();
 
       // Create a new entity for expired grant
-      const expiredGranteeHandle = padHandle("expiredgrant");
+      const expiredGranteeHandle = padBytes("expired_grant", 32);
       const [expiredGranteeEntityPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -702,7 +695,7 @@ describe("ip_core derivative with license", () => {
           new anchor.BN(pastTimestamp),
           ipCoreProgram.programId,
         )
-        .accounts({
+        .accountsPartial({
           license: expiredLicensePda,
           authorityEntity: entityPda,
           granteeEntity: expiredGranteeEntityPda,

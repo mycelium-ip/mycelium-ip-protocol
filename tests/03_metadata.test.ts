@@ -6,6 +6,7 @@ import { expect } from "chai";
 import * as crypto from "crypto";
 import entitySchemaJson from "./utils/metadata_schema/entity.metadata.v1.json";
 import ipSchemaJson from "./utils/metadata_schema/ip.metadata.v1.json";
+import { padBytes } from "./utils/helper";
 
 describe("ip_core metadata", () => {
   const provider = anchor.AnchorProvider.env();
@@ -14,18 +15,6 @@ describe("ip_core metadata", () => {
   const program = anchor.workspace.IpCore as Program<IpCore>;
   const creator = provider.wallet as anchor.Wallet;
 
-  // Helper to pad bytes
-  const padBytes = (data: string, length: number): number[] => {
-    const bytes = Buffer.from(data);
-    const padded = Buffer.alloc(length);
-    bytes.copy(padded);
-    return Array.from(padded);
-  };
-
-  const padHandle = (handle: string): number[] => padBytes(handle, 32);
-  const padSchemaId = (id: string): number[] => padBytes(id, 32);
-  const padVersion = (version: string): number[] => padBytes(version, 16);
-  const padCid = (cid: string): number[] => padBytes(cid, 96);
   const randomHash = (): number[] =>
     Array.from(Keypair.generate().publicKey.toBytes());
 
@@ -38,10 +27,10 @@ describe("ip_core metadata", () => {
 
   describe("create_metadata_schema", () => {
     it("creates a metadata schema", async () => {
-      const schemaId = padSchemaId(entitySchemaJson.schema.schema_id);
-      const version = padVersion(entitySchemaJson.schema.version);
+      const schemaId = padBytes(entitySchemaJson.schema.schema_id, 32);
+      const version = padBytes(entitySchemaJson.schema.version, 16);
       const hash = hashSchema(entitySchemaJson.schema);
-      const cid = padCid(entitySchemaJson.cid);
+      const cid = padBytes(entitySchemaJson.cid, 96);
 
       const [schemaPda] = PublicKey.findProgramAddressSync(
         [
@@ -62,8 +51,8 @@ describe("ip_core metadata", () => {
     });
 
     it("fails with empty CID", async () => {
-      const schemaId = padSchemaId("empty-cid-schema");
-      const version = padVersion("1.0.0");
+      const schemaId = padBytes("empty-cid-schema", 32);
+      const version = padBytes("1.0.0", 16);
       const hash = randomHash();
       const cid = Array(96).fill(0); // Empty CID
 
@@ -90,7 +79,7 @@ describe("ip_core metadata", () => {
   describe("create_entity_metadata", () => {
     let entityPda: PublicKey;
     let schemaPda: PublicKey;
-    const handle = padHandle("metadataentity");
+    const handle = padBytes("metadata_entity", 32);
 
     before(async () => {
       // Create entity
@@ -106,10 +95,10 @@ describe("ip_core metadata", () => {
       await program.methods.createEntity(handle, [], 1).rpc();
 
       // Create schema using IP metadata schema
-      const schemaId = padSchemaId(ipSchemaJson.schema.schema_id);
-      const version = padVersion(ipSchemaJson.schema.version);
+      const schemaId = padBytes(ipSchemaJson.schema.schema_id, 32);
+      const version = padBytes(ipSchemaJson.schema.version, 16);
       const hash = hashSchema(ipSchemaJson.schema);
-      const cid = padCid(ipSchemaJson.cid);
+      const cid = padBytes(ipSchemaJson.cid, 96);
 
       [schemaPda] = PublicKey.findProgramAddressSync(
         [
@@ -128,7 +117,7 @@ describe("ip_core metadata", () => {
     it("creates entity metadata", async () => {
       const revision = new anchor.BN(1);
       const hash = randomHash();
-      const cid = padCid("QmEntityMetadata1");
+      const cid = padBytes("QmEntityMetadata1", 96);
 
       const revisionBytes = revision.toArrayLike(Buffer, "le", 8);
       const [metadataPda] = PublicKey.findProgramAddressSync(
@@ -160,7 +149,7 @@ describe("ip_core metadata", () => {
     it("fails with invalid revision", async () => {
       const revision = new anchor.BN(5); // Should be 2, not 5
       const hash = randomHash();
-      const cid = padCid("QmInvalidRevision");
+      const cid = padBytes("QmInvalidRevision", 96);
 
       const revisionBytes = revision.toArrayLike(Buffer, "le", 8);
       const [metadataPda] = PublicKey.findProgramAddressSync(

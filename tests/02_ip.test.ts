@@ -8,6 +8,7 @@ import {
   mintTo,
 } from "@solana/spl-token";
 import { expect } from "chai";
+import { padBytes } from "./utils/helper";
 
 describe("ip_core ip", () => {
   const provider = anchor.AnchorProvider.env();
@@ -22,14 +23,6 @@ describe("ip_core ip", () => {
   let treasuryTokenAccount: PublicKey;
   let payerTokenAccount: PublicKey;
   let entityPda: PublicKey;
-
-  // Helper to pad bytes
-  const padHandle = (handle: string): number[] => {
-    const bytes = Buffer.from(handle);
-    const padded = Buffer.alloc(32);
-    bytes.copy(padded);
-    return Array.from(padded);
-  };
 
   const randomHash = (): number[] =>
     Array.from(Keypair.generate().publicKey.toBytes());
@@ -120,7 +113,7 @@ describe("ip_core ip", () => {
     }
 
     // Create entity
-    const handle = padHandle("ipowner");
+    const handle = padBytes("ip_owner", 32);
     [entityPda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from("entity"),
@@ -223,7 +216,7 @@ describe("ip_core ip", () => {
         .rpc();
 
       // Create new owner entity
-      const newHandle = padHandle("newowner");
+      const newHandle = padBytes("new_owner", 32);
       [newOwnerEntityPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),

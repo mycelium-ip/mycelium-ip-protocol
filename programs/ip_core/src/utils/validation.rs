@@ -2,12 +2,12 @@ use crate::constants::MAX_HANDLE_LENGTH;
 use crate::error::IpCoreError;
 use anchor_lang::prelude::*;
 
-/// Validates that a handle is lowercase alphanumeric and within length limits.
+/// Validates that a handle is lowercase alphanumeric (with underscores) and within length limits.
 ///
 /// Handle requirements:
 /// - Must be 1-32 characters
-/// - Must contain only lowercase letters (a-z) and digits (0-9)
-/// - Regex equivalent: `^[a-z0-9]{1,32}$`
+/// - Must contain only lowercase letters (a-z), digits (0-9), and underscores (_)
+/// - Regex equivalent: `^[a-z0-9_]{1,32}$`
 ///
 /// # Arguments
 /// * `handle` - The handle bytes to validate
@@ -31,9 +31,9 @@ pub fn validate_handle(handle: &[u8]) -> Result<()> {
         return Err(IpCoreError::HandleTooLong.into());
     }
 
-    // Validate characters: must be lowercase alphanumeric (a-z, 0-9)
+    // Validate characters: must be lowercase alphanumeric or underscore (a-z, 0-9, _)
     for &byte in &handle[..actual_len] {
-        if !byte.is_ascii_lowercase() && !byte.is_ascii_digit() {
+        if !byte.is_ascii_lowercase() && !byte.is_ascii_digit() && byte != b'_' {
             return Err(IpCoreError::InvalidHandle.into());
         }
     }
@@ -108,17 +108,21 @@ mod tests {
         assert!(validate_handle(b"a").is_ok());
         assert!(validate_handle(b"12345").is_ok());
         assert!(validate_handle(b"abc123def456").is_ok());
+        // Underscores are allowed
+        assert!(validate_handle(b"handle_with_underscore").is_ok());
+        assert!(validate_handle(b"my_entity_1").is_ok());
     }
 
     #[test]
     fn test_validate_handle_invalid() {
         // Uppercase not allowed
         assert!(validate_handle(b"InvalidHandle").is_err());
-        // Special characters not allowed
-        assert!(validate_handle(b"handle_with_underscore").is_err());
+        // Dashes not allowed
         assert!(validate_handle(b"handle-with-dash").is_err());
         // Spaces not allowed
         assert!(validate_handle(b"handle with spaces").is_err());
+        // Other special characters not allowed
+        assert!(validate_handle(b"handle@special").is_err());
     }
 
     #[test]

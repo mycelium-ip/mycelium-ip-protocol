@@ -3,6 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { IpCore } from "../target/types/ip_core";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { expect } from "chai";
+import { padBytes } from "./utils/helper";
 
 describe("ip_core entity", () => {
   const provider = anchor.AnchorProvider.env();
@@ -11,17 +12,9 @@ describe("ip_core entity", () => {
   const program = anchor.workspace.IpCore as Program<IpCore>;
   const creator = provider.wallet as anchor.Wallet;
 
-  // Helper to pad handle to 32 bytes
-  const padHandle = (handle: string): number[] => {
-    const bytes = Buffer.from(handle);
-    const padded = Buffer.alloc(32);
-    bytes.copy(padded);
-    return Array.from(padded);
-  };
-
   describe("create_entity", () => {
     it("creates an entity with valid handle", async () => {
-      const handle = padHandle("testentity");
+      const handle = padBytes("testentity", 32);
 
       const [entityPda] = PublicKey.findProgramAddressSync(
         [
@@ -45,7 +38,7 @@ describe("ip_core entity", () => {
     });
 
     it("creates an entity with multiple controllers", async () => {
-      const handle = padHandle("multisigentity");
+      const handle = padBytes("multisig_entity", 32);
       const controller2 = Keypair.generate();
       const controller3 = Keypair.generate();
 
@@ -68,7 +61,7 @@ describe("ip_core entity", () => {
     });
 
     it("fails with invalid handle (uppercase)", async () => {
-      const handle = padHandle("InvalidHandle");
+      const handle = padBytes("@InvalidHandle", 32);
 
       const [entityPda] = PublicKey.findProgramAddressSync(
         [
@@ -88,7 +81,7 @@ describe("ip_core entity", () => {
     });
 
     it("fails with invalid threshold", async () => {
-      const handle = padHandle("badthreshold");
+      const handle = padBytes("bad_threshold", 32);
 
       const [entityPda] = PublicKey.findProgramAddressSync(
         [
@@ -110,7 +103,7 @@ describe("ip_core entity", () => {
     });
 
     it("fails with too many controllers", async () => {
-      const handle = padHandle("toomany");
+      const handle = padBytes("too_many", 32);
 
       const [entityPda] = PublicKey.findProgramAddressSync(
         [
@@ -138,7 +131,7 @@ describe("ip_core entity", () => {
 
   describe("update_entity_controllers", () => {
     let entityPda: PublicKey;
-    const handle = padHandle("updateentity");
+    const handle = padBytes("update_entity", 32);
 
     before(async () => {
       [entityPda] = PublicKey.findProgramAddressSync(

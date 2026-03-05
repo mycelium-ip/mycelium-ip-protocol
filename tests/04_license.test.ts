@@ -9,6 +9,7 @@ import {
   mintTo,
 } from "@solana/spl-token";
 import { expect } from "chai";
+import { padBytes } from "./utils/helper";
 
 describe("license", () => {
   const provider = anchor.AnchorProvider.env();
@@ -26,14 +27,6 @@ describe("license", () => {
   let entityPda: PublicKey;
   let ipPda: PublicKey;
   let licensePda: PublicKey;
-
-  // Helper to pad bytes
-  const padHandle = (handle: string): number[] => {
-    const bytes = Buffer.from(handle);
-    const padded = Buffer.alloc(32);
-    bytes.copy(padded);
-    return Array.from(padded);
-  };
 
   const randomHash = (): number[] =>
     Array.from(Keypair.generate().publicKey.toBytes());
@@ -118,7 +111,7 @@ describe("license", () => {
     }
 
     // Create entity
-    const handle = padHandle("licowner");
+    const handle = padBytes("lic_owner", 32);
     [entityPda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from("entity"),
@@ -263,7 +256,7 @@ describe("license", () => {
 
       await licenseProgram.methods
         .updateLicense(false, ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
         })
@@ -291,7 +284,7 @@ describe("license", () => {
       // Revert back for other tests
       await licenseProgram.methods
         .updateLicense(true, ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
         })
@@ -305,7 +298,7 @@ describe("license", () => {
       try {
         await licenseProgram.methods
           .updateLicense(false, ipCoreProgram.programId)
-          .accounts({
+          .accountsPartial({
             license: licensePda,
             authorityEntity: entityPda,
           })
@@ -319,7 +312,7 @@ describe("license", () => {
 
     it("fails with wrong authority", async () => {
       // Create another entity
-      const otherHandle = padHandle("otherlic");
+      const otherHandle = padBytes("other_lic", 32);
       const [otherEntityPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -338,7 +331,7 @@ describe("license", () => {
       try {
         await licenseProgram.methods
           .updateLicense(false, ipCoreProgram.programId)
-          .accounts({
+          .accountsPartial({
             license: licensePda,
             authorityEntity: otherEntityPda, // Wrong authority!
           })
@@ -359,7 +352,7 @@ describe("license", () => {
 
     before(async () => {
       // Create grantee entity
-      const granteeHandle = padHandle("grantee");
+      const granteeHandle = padBytes("grantee", 32);
       [granteeEntityPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -389,7 +382,7 @@ describe("license", () => {
     it("creates a license grant with no expiration", async () => {
       await licenseProgram.methods
         .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: granteeEntityPda,
@@ -432,7 +425,7 @@ describe("license", () => {
 
     it("creates a license grant with expiration", async () => {
       // Create another grantee for this test
-      const granteeHandle2 = padHandle("grantee2");
+      const granteeHandle2 = padBytes("grantee2", 32);
       const [granteeEntity2Pda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -465,7 +458,7 @@ describe("license", () => {
           new anchor.BN(oneYearFromNow),
           ipCoreProgram.programId,
         )
-        .accounts({
+        .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: granteeEntity2Pda,
@@ -485,7 +478,7 @@ describe("license", () => {
       try {
         await licenseProgram.methods
           .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-          .accounts({
+          .accountsPartial({
             license: licensePda,
             authorityEntity: entityPda,
             granteeEntity: granteeEntityPda,
@@ -503,7 +496,7 @@ describe("license", () => {
 
     it("fails without multisig approval", async () => {
       // Create another grantee
-      const granteeHandle3 = padHandle("grantee3");
+      const granteeHandle3 = padBytes("grantee3", 32);
       const [granteeEntity3Pda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -522,7 +515,7 @@ describe("license", () => {
       try {
         await licenseProgram.methods
           .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-          .accounts({
+          .accountsPartial({
             license: licensePda,
             authorityEntity: entityPda,
             granteeEntity: granteeEntity3Pda,
@@ -542,7 +535,7 @@ describe("license", () => {
 
     before(async () => {
       // Create a grantee specifically for revocation test
-      const revokeGranteeHandle = padHandle("revokegrant");
+      const revokeGranteeHandle = padBytes("revoke_grant", 32);
       [revokeGranteeEntityPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -572,7 +565,7 @@ describe("license", () => {
       // Create the grant
       await licenseProgram.methods
         .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: revokeGranteeEntityPda,
@@ -592,7 +585,7 @@ describe("license", () => {
 
       await licenseProgram.methods
         .revokeLicenseGrant(ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           licenseGrant: revokeLicenseGrantPda,
           license: licensePda,
           authorityEntity: entityPda,
@@ -614,7 +607,7 @@ describe("license", () => {
 
     it("fails without multisig approval", async () => {
       // Create another grant to revoke
-      const revokeHandle2 = padHandle("revoke2");
+      const revokeHandle2 = padBytes("revoke2", 32);
       const [revokeEntity2Pda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("entity"),
@@ -641,7 +634,7 @@ describe("license", () => {
 
       await licenseProgram.methods
         .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: revokeEntity2Pda,
@@ -654,7 +647,7 @@ describe("license", () => {
       try {
         await licenseProgram.methods
           .revokeLicenseGrant(ipCoreProgram.programId)
-          .accounts({
+          .accountsPartial({
             licenseGrant: revokeGrant2Pda,
             license: licensePda,
             authorityEntity: entityPda,
@@ -721,7 +714,7 @@ describe("license", () => {
 
       await licenseProgram.methods
         .revokeLicense(ipCoreProgram.programId)
-        .accounts({
+        .accountsPartial({
           license: revokeLicensePda,
           authorityEntity: entityPda,
           rentDestination: creator.publicKey,
@@ -780,7 +773,7 @@ describe("license", () => {
       try {
         await licenseProgram.methods
           .revokeLicense(ipCoreProgram.programId)
-          .accounts({
+          .accountsPartial({
             license: testLicensePda,
             authorityEntity: entityPda,
             rentDestination: creator.publicKey,

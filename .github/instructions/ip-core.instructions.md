@@ -352,9 +352,9 @@ No delete.
 
 Where:
 
-- handle must be lowercase alphanumeric
+- handle must be lowercase alphanumeric and underscores only
 - length ∈ [1, 32]
-- must match regex: ^[a-z0-9]{1,32}$
+- must match regex: ^[a-z0-9_]{1,32}$
 
 ## Fields
 
