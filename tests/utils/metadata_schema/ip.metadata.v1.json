@@ -1,0 +1,149 @@
+{
+  "cid": "bafkreieinhdchmhtiegaegvkikl6dawk6b43y2dkpif65v23gronw4lsp4",
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "schema_id": "ip.metadata.v1",
+    "name": "IP Metadata",
+    "description": "Metadata schema for intellectual property registered in the Mycelium IP Protocol",
+    "version": "1.0.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["title", "creators", "createdAt", "assets"],
+    "properties": {
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+
+      "title": {
+        "type": "string"
+      },
+
+      "description": {
+        "type": "string"
+      },
+
+      "category": {
+        "type": "string"
+      },
+
+      "tags": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+
+      "creators": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "role"],
+          "properties": {
+            "name": { "type": "string" },
+            "role": { "type": "string" }
+          }
+        }
+      },
+
+      "country": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 2,
+        "description": "ISO 3166-1 alpha-2 country code"
+      },
+
+      "city": {
+        "type": "string"
+      },
+
+      "logoCid": {
+        "type": "string",
+        "description": "CID of logo image for IP"
+      },
+
+      "assets": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["cid", "filename", "hash", "role", "fileType"],
+          "properties": {
+            "cid": {
+              "type": "string"
+            },
+
+            "filename": {
+              "type": "string"
+            },
+
+            "hash": {
+              "type": "string",
+              "description": "SHA256 of file"
+            },
+
+            "size": {
+              "type": "number"
+            },
+
+            "mimeType": {
+              "type": "string"
+            },
+
+            "fileType": {
+              "type": "string",
+              "enum": [
+                "image",
+                "audio",
+                "video",
+                "document",
+                "archive",
+                "model",
+                "code",
+                "dataset",
+                "text",
+                "link"
+              ]
+            },
+
+            "role": {
+              "type": "string",
+              "enum": [
+                "master",
+                "source",
+                "publication",
+                "preview",
+                "draft",
+                "archive",
+                "documentation",
+                "contract",
+                "reference",
+                "deliverable"
+              ]
+            },
+
+            "version": {
+              "type": "string"
+            }
+          }
+        }
+      },
+
+      "externalLinks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        }
+      },
+
+      "license": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "terms": { "type": "string" }
+        }
+      }
+    }
+  }
+}

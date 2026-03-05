@@ -1,0 +1,105 @@
+{
+  "cid": "bafkreigxtyoylnz6wmq2c46iik4xpzvu7ltfy2b7yqmcihugx3x2dbbtze",
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "schema_id": "entity.metadata.v1",
+    "name": "Entity Metadata",
+    "description": "Public identity metadata for entities registered in the Mycelium IP Protocol",
+    "version": "1.0.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["displayName", "handle", "entityType"],
+    "properties": {
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+
+      "displayName": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 100
+      },
+
+      "handle": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 32,
+        "pattern": "^[a-zA-Z0-9_\\-]+$",
+        "description": "Unique, URL-safe identifier"
+      },
+
+      "description": {
+        "type": "string",
+        "maxLength": 500
+      },
+
+      "entityType": {
+        "type": "string",
+        "enum": [
+          "personal",
+          "company",
+          "organization",
+          "studio",
+          "publisher",
+          "other"
+        ]
+      },
+
+      "jurisdiction": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 2,
+        "description": "ISO 3166-1 alpha-2 country code"
+      },
+
+      "website": {
+        "type": "string",
+        "format": "uri"
+      },
+
+      "phone": {
+        "type": "string",
+        "minLength": 7,
+        "maxLength": 15
+      },
+
+      "socials": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["platform", "url"],
+          "additionalProperties": false,
+          "properties": {
+            "platform": {
+              "type": "string",
+              "enum": ["twitter", "discord", "github", "linkedin", "other"]
+            },
+
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      },
+
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      },
+
+      "avatarCid": {
+        "type": "string"
+      },
+
+      "bannerCid": {
+        "type": "string"
+      }
+    }
+  }
+}
