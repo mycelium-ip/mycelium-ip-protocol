@@ -116,6 +116,7 @@ pub fn handler(
 
     // Increment IP's metadata revision
     ip.current_metadata_revision = revision;
+    ip.updated_at = now;
 
     msg!("IP metadata created (revision {})", revision);
 

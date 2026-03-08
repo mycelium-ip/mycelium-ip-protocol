@@ -119,6 +119,7 @@ pub fn handler(ctx: Context<CreateIp>, content_hash: [u8; 32]) -> Result<()> {
     ip.current_owner_entity = registrant_entity.key();
     ip.current_metadata_revision = 0;
     ip.created_at = now;
+    ip.updated_at = now;
     ip.bump = ctx.bumps.ip;
 
     msg!("IP registered");

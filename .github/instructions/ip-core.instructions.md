@@ -329,12 +329,14 @@ IP:
 - Validates entity multisig.
 - Creates MetadataAccount.
 - Increments entity.current_metadata_revision.
+- Updates entity.updated_at.
 
 ### create_ip_metadata
 
 - Validates current_owner_entity.
 - Creates MetadataAccount.
 - Increments ip.current_metadata_revision.
+- Updates ip.updated_at.
 
 No update.
 
@@ -428,6 +430,7 @@ No delete allowed.
 - current_owner_entity: Pubkey
 - current_metadata_revision: u64
 - created_at: i64
+- updated_at: i64
 - bump: u8
 
 ## Invariants
@@ -487,6 +490,7 @@ No delete allowed.
   - `current_owner_entity = registrant_entity`
   - `current_metadata_revision = 0`
   - `created_at = Clock::get()?.unix_timestamp`
+  - `updated_at = Clock::get()?.unix_timestamp`
 
 No other fields may be mutated.
 
@@ -499,6 +503,7 @@ No other fields may be mutated.
   - registrant_entity
   - current_metadata_revision
   - created_at
+  - updated_at
 - PDA must remain identical.
 
 No delete allowed.

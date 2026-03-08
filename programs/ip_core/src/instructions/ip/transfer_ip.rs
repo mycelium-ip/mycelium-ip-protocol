@@ -40,6 +40,7 @@ pub struct TransferIp<'info> {
 /// - registrant_entity
 /// - current_metadata_revision
 /// - created_at
+/// - updated_at
 ///
 /// # Arguments
 /// * `ctx` - Context containing accounts

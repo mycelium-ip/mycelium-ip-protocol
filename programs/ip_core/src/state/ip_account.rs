@@ -7,10 +7,11 @@ use anchor_lang::prelude::*;
 /// - 32 bytes: current_owner_entity
 /// - 8 bytes: current_metadata_revision
 /// - 8 bytes: created_at
+/// - 8 bytes: updated_at
 /// - 1 byte: bump
 ///
-/// Total: 121 bytes
-pub const IP_ACCOUNT_SIZE: usize = 8 + 32 + 32 + 32 + 8 + 8 + 1;
+/// Total: 129 bytes
+pub const IP_ACCOUNT_SIZE: usize = 8 + 32 + 32 + 32 + 8 + 8 + 8 + 1;
 
 /// An on-chain IP (Intellectual Property) registration.
 ///
@@ -35,6 +36,9 @@ pub struct IpAccount {
 
     /// Unix timestamp when this IP was registered.
     pub created_at: i64,
+
+    /// Unix timestamp when this IP was last updated.
+    pub updated_at: i64,
 
     /// PDA bump seed.
     pub bump: u8,
