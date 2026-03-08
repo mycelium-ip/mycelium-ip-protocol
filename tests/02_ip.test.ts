@@ -28,11 +28,11 @@ describe("ip_core ip", () => {
   // Test file paths for content hashing
   const testFile1 = path.join(
     __dirname,
-    "utils/file-examples/test-img-01.jpeg",
+    "../utils/file-examples/test-img-01.jpeg",
   );
   const testFile2 = path.join(
     __dirname,
-    "utils/file-examples/test-img-02.jpeg",
+    "../utils/file-examples/test-img-02.jpeg",
   );
 
   // Generate unique hash by combining file hash with random salt
