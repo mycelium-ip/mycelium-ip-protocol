@@ -12,7 +12,6 @@ use crate::utils::validation::validate_cid_not_empty;
 
 /// Accounts required for create_entity_metadata instruction.
 #[derive(Accounts)]
-#[instruction(revision: u64)]
 pub struct CreateEntityMetadata<'info> {
     /// The metadata account to create (PDA).
     #[account(
@@ -23,7 +22,7 @@ pub struct CreateEntityMetadata<'info> {
             METADATA_SEED,
             b"entity",
             entity.key().as_ref(),
-            &revision.to_le_bytes()
+            &(entity.current_metadata_revision + 1).to_le_bytes()
         ],
         bump
     )]
@@ -53,17 +52,14 @@ pub struct CreateEntityMetadata<'info> {
 ///
 /// # Arguments
 /// * `ctx` - Context containing accounts
-/// * `revision` - Revision number (must be current + 1)
 /// * `hash` - SHA-256 hash of the metadata content
 /// * `cid` - IPFS CID pointing to the metadata content
 ///
 /// # Errors
 /// * `IpCoreError::InsufficientSignatures` - Multisig threshold not met
-/// * `IpCoreError::InvalidMetadataRevision` - Revision is not current + 1
 /// * `IpCoreError::EmptyCid` - CID is empty
 pub fn handler(
     ctx: Context<CreateEntityMetadata>,
-    revision: u64,
     hash: [u8; 32],
     cid: [u8; MAX_CID_LENGTH],
 ) -> Result<()> {
@@ -77,15 +73,11 @@ pub fn handler(
         entity.signature_threshold,
     )?;
 
-    // Validate revision is exactly current + 1
-    let expected_revision = entity
+    // Auto-increment revision
+    let new_revision = entity
         .current_metadata_revision
         .checked_add(1)
         .ok_or(IpCoreError::ArithmeticOverflow)?;
-
-    if revision != expected_revision {
-        return Err(IpCoreError::InvalidMetadataRevision.into());
-    }
 
     // Validate CID
     validate_cid_not_empty(&cid)?;
@@ -101,12 +93,12 @@ pub fn handler(
     metadata.cid = cid;
     metadata.parent_type = MetadataParentType::Entity;
     metadata.parent = entity.key();
-    metadata.revision = revision;
+    metadata.revision = new_revision;
     metadata.created_at = now;
     metadata.bump = ctx.bumps.metadata;
 
     // Increment entity's metadata revision
-    entity.current_metadata_revision = revision;
+    entity.current_metadata_revision = new_revision;
     entity.updated_at = now;
 
     emit!(EntityMetadataCreated {
@@ -114,13 +106,13 @@ pub fn handler(
         entity: entity.key(),
         authority: entity.key(),
         schema: ctx.accounts.schema.key(),
-        revision,
+        revision: new_revision,
         hash,
         cid,
         created_at: now,
     });
 
-    msg!("Entity metadata created (revision {})", revision);
+    msg!("Entity metadata created (revision {})", new_revision);
 
     Ok(())
 }

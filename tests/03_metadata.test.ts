@@ -2,6 +2,11 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { IpCore } from "../target/types/ip_core";
 import { Keypair, PublicKey } from "@solana/web3.js";
+import {
+  createMint,
+  getOrCreateAssociatedTokenAccount,
+  mintTo,
+} from "@solana/spl-token";
 import { expect } from "chai";
 import * as crypto from "crypto";
 import entitySchemaJson from "../utils/metadata-schema/entity.metadata.v1.json";
@@ -115,11 +120,14 @@ describe("ip_core metadata", () => {
     });
 
     it("creates entity metadata", async () => {
-      const revision = new anchor.BN(1);
       const hash = randomHash();
       const cid = padBytes("QmEntityMetadata1", 96);
 
-      const revisionBytes = revision.toArrayLike(Buffer, "le", 8);
+      // Fetch current revision from chain and derive the next PDA
+      const entityState = await program.account.entity.fetch(entityPda);
+      const nextRevision = entityState.currentMetadataRevision.addn(1);
+      const revisionBytes = nextRevision.toArrayLike(Buffer, "le", 8);
+
       const [metadataPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("metadata"),
@@ -131,8 +139,9 @@ describe("ip_core metadata", () => {
       );
 
       await program.methods
-        .createEntityMetadata(revision, hash, cid)
+        .createEntityMetadata(hash, cid)
         .accounts({
+          metadata: metadataPda,
           entity: entityPda,
           schema: schemaPda,
         })
@@ -142,21 +151,190 @@ describe("ip_core metadata", () => {
         .rpc();
 
       const metadata = await program.account.metadataAccount.fetch(metadataPda);
-      expect(metadata.revision.toNumber()).to.equal(1);
+      expect(metadata.revision.toNumber()).to.equal(nextRevision.toNumber());
       expect(metadata.parent.toString()).to.equal(entityPda.toString());
     });
+  });
 
-    it("fails with invalid revision", async () => {
-      const revision = new anchor.BN(5); // Should be 2, not 5
-      const hash = randomHash();
-      const cid = padBytes("QmInvalidRevision", 96);
+  describe("create_ip_metadata", () => {
+    let entityPda: PublicKey;
+    let ipPda: PublicKey;
+    let schemaPda: PublicKey;
 
-      const revisionBytes = revision.toArrayLike(Buffer, "le", 8);
+    before(async () => {
+      // --- token infrastructure (idempotent) ---
+      const [configPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("config")],
+        program.programId,
+      );
+      const [treasuryPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("treasury")],
+        program.programId,
+      );
+
+      let mint: PublicKey;
+      let configExists = false;
+      try {
+        const existingConfig = await program.account.protocolConfig.fetch(
+          configPda,
+        );
+        mint = existingConfig.registrationCurrency;
+        configExists = true;
+      } catch {
+        mint = await createMint(
+          provider.connection,
+          creator.payer,
+          creator.publicKey,
+          null,
+          6,
+        );
+      }
+
+      if (!configExists) {
+        await program.methods
+          .initializeConfig(treasuryPda, mint, new anchor.BN(1_000_000))
+          .rpc();
+      }
+
+      let treasuryExists = false;
+      try {
+        await program.account.protocolTreasury.fetch(treasuryPda);
+        treasuryExists = true;
+      } catch {
+        // not yet initialized
+      }
+      if (!treasuryExists) {
+        await program.methods.initializeTreasury().rpc();
+      }
+
+      const treasuryAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator.payer,
+        mint,
+        treasuryPda,
+        true,
+      );
+
+      const payerAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator.payer,
+        mint,
+        creator.publicKey,
+      );
+
+      const balance = await provider.connection.getTokenAccountBalance(
+        payerAta.address,
+      );
+      if (balance.value.uiAmount === null || balance.value.uiAmount < 10) {
+        await mintTo(
+          provider.connection,
+          creator.payer,
+          mint,
+          payerAta.address,
+          creator.publicKey,
+          100_000_000,
+        );
+      }
+
+      // --- entity ---
+      const handle = padBytes("ip_meta_entity", 32);
+      [entityPda] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("entity"),
+          creator.publicKey.toBuffer(),
+          Buffer.from(handle),
+        ],
+        program.programId,
+      );
+
+      try {
+        await program.methods.createEntity(handle, [], 1).rpc();
+      } catch {
+        // already exists
+      }
+
+      // --- IP ---
+      const contentHash = Array.from(Keypair.generate().publicKey.toBytes());
+      [ipPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("ip"), entityPda.toBuffer(), Buffer.from(contentHash)],
+        program.programId,
+      );
+
+      await program.methods
+        .createIp(contentHash)
+        .accounts({
+          registrantEntity: entityPda,
+          treasuryTokenAccount: treasuryAta.address,
+          payerTokenAccount: payerAta.address,
+        })
+        .remainingAccounts([
+          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
+        ])
+        .rpc();
+
+      // --- schema (reuse ipSchemaJson schema already on-chain) ---
+      const schemaId = padBytes(ipSchemaJson.schema.schema_id, 32);
+      const version = padBytes(ipSchemaJson.schema.version, 16);
+      [schemaPda] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("metadata_schema"),
+          Buffer.from(schemaId),
+          Buffer.from(version),
+        ],
+        program.programId,
+      );
+    });
+
+    it("creates IP metadata", async () => {
+      const hash = Array.from(Keypair.generate().publicKey.toBytes());
+      const cid = padBytes("QmIpMetadata1", 96);
+
+      const ipState = await program.account.ipAccount.fetch(ipPda);
+      const nextRevision = ipState.currentMetadataRevision.addn(1);
+      const revisionBytes = nextRevision.toArrayLike(Buffer, "le", 8);
+
       const [metadataPda] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("metadata"),
-          Buffer.from("entity"),
-          entityPda.toBuffer(),
+          Buffer.from("ip"),
+          ipPda.toBuffer(),
+          revisionBytes,
+        ],
+        program.programId,
+      );
+
+      await program.methods
+        .createIpMetadata(hash, cid)
+        .accounts({
+          metadata: metadataPda,
+          ip: ipPda,
+          ownerEntity: entityPda,
+          schema: schemaPda,
+        })
+        .remainingAccounts([
+          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
+        ])
+        .rpc();
+
+      const metadata = await program.account.metadataAccount.fetch(metadataPda);
+      expect(metadata.revision.toNumber()).to.equal(nextRevision.toNumber());
+      expect(metadata.parent.toString()).to.equal(ipPda.toString());
+      expect(metadata.schema.toString()).to.equal(schemaPda.toString());
+    });
+
+    it("fails with empty CID", async () => {
+      const hash = Array.from(Keypair.generate().publicKey.toBytes());
+      const cid = Array(96).fill(0);
+
+      const ipState = await program.account.ipAccount.fetch(ipPda);
+      const nextRevision = ipState.currentMetadataRevision.addn(1);
+      const revisionBytes = nextRevision.toArrayLike(Buffer, "le", 8);
+
+      const [metadataPda] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("metadata"),
+          Buffer.from("ip"),
+          ipPda.toBuffer(),
           revisionBytes,
         ],
         program.programId,
@@ -164,9 +342,11 @@ describe("ip_core metadata", () => {
 
       try {
         await program.methods
-          .createEntityMetadata(revision, hash, cid)
+          .createIpMetadata(hash, cid)
           .accounts({
-            entity: entityPda,
+            metadata: metadataPda,
+            ip: ipPda,
+            ownerEntity: entityPda,
             schema: schemaPda,
           })
           .remainingAccounts([
@@ -175,7 +355,7 @@ describe("ip_core metadata", () => {
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InvalidMetadataRevision");
+        expect(err.toString()).to.include("EmptyCid");
       }
     });
   });

@@ -6,12 +6,12 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-ip_core = "47gfhX3eMBKzxHejX5n8HXxWSg8qi6DcbHDRRRXSoUUw"
-license = "BWX7AGub4tSjEq45cy1xsXpsPcAmSDv2djMiPnkR7Sj2"
+ip_core = "CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1"
+license = "8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU"
 
 [programs.devnet]
-ip_core = "47gfhX3eMBKzxHejX5n8HXxWSg8qi6DcbHDRRRXSoUUw"
-license = "BWX7AGub4tSjEq45cy1xsXpsPcAmSDv2djMiPnkR7Sj2"
+ip_core = "CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1"
+license = "8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU"
 
 [registry]
 url = "https://api.apr.dev"
@@ -22,9 +22,9 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 get_config = "npx ts-node scripts/get_config.ts"
+get_schemas = "npx ts-node scripts/get_schemas.ts"
 initialize_config = "npx ts-node scripts/initialize_config.ts"
 initialize_treasury = "npx ts-node scripts/initialize_treasury.ts"
 register_schema = "npx ts-node scripts/register_schema.ts"
-get_schemas = "npx ts-node scripts/get_schemas.ts"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 \"tests/**/*.ts\""
 update_config = "npx ts-node scripts/update_config.ts"

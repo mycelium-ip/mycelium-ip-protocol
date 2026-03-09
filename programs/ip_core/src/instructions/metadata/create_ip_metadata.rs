@@ -12,7 +12,6 @@ use crate::utils::validation::validate_cid_not_empty;
 
 /// Accounts required for create_ip_metadata instruction.
 #[derive(Accounts)]
-#[instruction(revision: u64)]
 pub struct CreateIpMetadata<'info> {
     /// The metadata account to create (PDA).
     #[account(
@@ -23,7 +22,7 @@ pub struct CreateIpMetadata<'info> {
             METADATA_SEED,
             b"ip",
             ip.key().as_ref(),
-            &revision.to_le_bytes()
+            &(ip.current_metadata_revision + 1).to_le_bytes()
         ],
         bump
     )]
@@ -61,18 +60,15 @@ pub struct CreateIpMetadata<'info> {
 ///
 /// # Arguments
 /// * `ctx` - Context containing accounts
-/// * `revision` - Revision number (must be current + 1)
 /// * `hash` - SHA-256 hash of the metadata content
 /// * `cid` - IPFS CID pointing to the metadata content
 ///
 /// # Errors
 /// * `IpCoreError::InsufficientSignatures` - Multisig threshold not met
 /// * `IpCoreError::InvalidOwnership` - Signer is not the current owner
-/// * `IpCoreError::InvalidMetadataRevision` - Revision is not current + 1
 /// * `IpCoreError::EmptyCid` - CID is empty
 pub fn handler(
     ctx: Context<CreateIpMetadata>,
-    revision: u64,
     hash: [u8; 32],
     cid: [u8; MAX_CID_LENGTH],
 ) -> Result<()> {
@@ -87,15 +83,11 @@ pub fn handler(
         owner_entity.signature_threshold,
     )?;
 
-    // Validate revision is exactly current + 1
-    let expected_revision = ip
+    // Auto-increment revision
+    let new_revision = ip
         .current_metadata_revision
         .checked_add(1)
         .ok_or(IpCoreError::ArithmeticOverflow)?;
-
-    if revision != expected_revision {
-        return Err(IpCoreError::InvalidMetadataRevision.into());
-    }
 
     // Validate CID
     validate_cid_not_empty(&cid)?;
@@ -111,12 +103,12 @@ pub fn handler(
     metadata.cid = cid;
     metadata.parent_type = MetadataParentType::Ip;
     metadata.parent = ip.key();
-    metadata.revision = revision;
+    metadata.revision = new_revision;
     metadata.created_at = now;
     metadata.bump = ctx.bumps.metadata;
 
     // Increment IP's metadata revision
-    ip.current_metadata_revision = revision;
+    ip.current_metadata_revision = new_revision;
     ip.updated_at = now;
 
     emit!(IpMetadataCreated {
@@ -124,13 +116,13 @@ pub fn handler(
         ip: ip.key(),
         owner_entity: owner_entity.key(),
         schema: ctx.accounts.schema.key(),
-        revision,
+        revision: new_revision,
         hash,
         cid,
         created_at: now,
     });
 
-    msg!("IP metadata created (revision {})", revision);
+    msg!("IP metadata created (revision {})", new_revision);
 
     Ok(())
 }

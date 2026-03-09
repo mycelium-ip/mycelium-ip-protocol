@@ -10,7 +10,7 @@ pub mod utils;
 use constants::{MAX_CID_LENGTH, MAX_HANDLE_LENGTH, MAX_SCHEMA_ID_LENGTH, MAX_VERSION_LENGTH};
 use instructions::*;
 
-declare_id!("47gfhX3eMBKzxHejX5n8HXxWSg8qi6DcbHDRRRXSoUUw");
+declare_id!("CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1");
 
 #[program]
 pub mod ip_core {
@@ -94,21 +94,19 @@ pub mod ip_core {
     /// Create metadata for an entity.
     pub fn create_entity_metadata(
         ctx: Context<CreateEntityMetadata>,
-        revision: u64,
         hash: [u8; 32],
         cid: [u8; MAX_CID_LENGTH],
     ) -> Result<()> {
-        instructions::metadata::create_entity_metadata::handler(ctx, revision, hash, cid)
+        instructions::metadata::create_entity_metadata::handler(ctx, hash, cid)
     }
 
     /// Create metadata for an IP.
     pub fn create_ip_metadata(
         ctx: Context<CreateIpMetadata>,
-        revision: u64,
         hash: [u8; 32],
         cid: [u8; MAX_CID_LENGTH],
     ) -> Result<()> {
-        instructions::metadata::create_ip_metadata::handler(ctx, revision, hash, cid)
+        instructions::metadata::create_ip_metadata::handler(ctx, hash, cid)
     }
 
     // ===== IP Instructions =====
