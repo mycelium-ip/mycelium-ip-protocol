@@ -21,7 +21,11 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
+create_entity = "npx ts-node scripts/create_entity.ts"
 get_config = "npx ts-node scripts/get_config.ts"
+get_entities = "npx ts-node scripts/get_entities.ts"
+get_ips = "npx ts-node scripts/get_ips.ts"
+get_metadata = "npx ts-node scripts/get_metadata.ts"
 get_schemas = "npx ts-node scripts/get_schemas.ts"
 initialize_config = "npx ts-node scripts/initialize_config.ts"
 initialize_treasury = "npx ts-node scripts/initialize_treasury.ts"
