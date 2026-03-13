@@ -48,9 +48,22 @@ The protocol consists of two independent programs:
 
 ## Programs
 
+### Deployed Addresses (Devnet)
+
+The protocol is currently deployed on **Solana Devnet**. Both programs share the same addresses on localnet and devnet.
+
+| Program     | Program ID                                     | Explorer                                                                                                                   |
+| ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **ip_core** | `CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1` | [View on Solana Explorer](https://explorer.solana.com/address/CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1?cluster=devnet) |
+| **license** | `8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU` | [View on Solana Explorer](https://explorer.solana.com/address/8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU?cluster=devnet) |
+
+> **Note:** These are devnet deployments for development and testing. Mainnet addresses will be published upon mainnet launch.
+
+---
+
 ### ip_core
 
-**Program ID:** `3x8zi15UHjdD8CkqbBFX49SvcrDyh9gRfCZhDmnSBAZL`
+**Program ID:** `CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1`
 
 The core registry program handles IP registration, entity management, and derivative tracking.
 
@@ -110,7 +123,7 @@ The core registry program handles IP registration, entity management, and deriva
 
 ### license
 
-**Program ID:** `LicE6QjUgS6pYt6QdBcqXE7kD2kFXXWKH2Z7YYY2YYY`
+**Program ID:** `8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU`
 
 The license program implements a two-layer licensing model for IP usage rights.
 
