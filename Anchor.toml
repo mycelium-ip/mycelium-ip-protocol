@@ -5,13 +5,13 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-ip_core = "CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1"
-license = "8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU"
-
 [programs.devnet]
-ip_core = "CSSfTXVfCUmvZCEjPZxFne5EPewzTGCyYAybLNihLQM1"
-license = "8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU"
+ip_core = "8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G"
+license = "E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj"
+
+[programs.localnet]
+ip_core = "8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G"
+license = "E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj"
 
 [registry]
 url = "https://api.apr.dev"

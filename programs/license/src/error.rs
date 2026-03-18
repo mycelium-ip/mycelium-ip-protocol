@@ -51,10 +51,6 @@ pub enum LicenseError {
     #[msg("Invalid license reference")]
     InvalidLicense,
 
-    /// Not enough valid signatures to meet the threshold.
-    #[msg("Insufficient signatures: threshold not met")]
-    InsufficientSignatures,
-
     /// An arithmetic overflow occurred.
     #[msg("Arithmetic overflow")]
     ArithmeticOverflow,

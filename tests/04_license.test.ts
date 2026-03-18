@@ -122,7 +122,7 @@ describe("license", () => {
     );
 
     try {
-      await ipCoreProgram.methods.createEntity(handle, [], 1).rpc();
+      await ipCoreProgram.methods.createEntity(handle).rpc();
     } catch {
       // Already created
     }
@@ -140,10 +140,8 @@ describe("license", () => {
         registrantEntity: entityPda,
         treasuryTokenAccount: treasuryTokenAccount,
         payerTokenAccount: payerTokenAccount,
+        controller: creator.publicKey,
       })
-      .remainingAccounts([
-        { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-      ])
       .rpc();
 
     // Derive license PDA
@@ -161,10 +159,8 @@ describe("license", () => {
           originIp: ipPda,
           ownerEntity: entityPda,
           derivativeCheck: null,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const license = await licenseProgram.account.license.fetch(licensePda);
@@ -197,10 +193,8 @@ describe("license", () => {
             originIp: ipPda,
             ownerEntity: entityPda,
             derivativeCheck: null,
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
@@ -209,7 +203,7 @@ describe("license", () => {
       }
     });
 
-    it("fails without multisig approval", async () => {
+    it("fails without controller signature", async () => {
       // Create a new IP for this test
       const contentHash = randomHash();
       const [newIpPda] = PublicKey.findProgramAddressSync(
@@ -223,13 +217,12 @@ describe("license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
-      // Try to create license without passing signers in remaining accounts
+      // Try to create license without controller signature
+      const fakeController = Keypair.generate();
       try {
         await licenseProgram.methods
           .createLicense(true, ipCoreProgram.programId)
@@ -237,12 +230,13 @@ describe("license", () => {
             originIp: newIpPda,
             ownerEntity: entityPda,
             derivativeCheck: null,
+            controller: fakeController.publicKey,
           })
-          .remainingAccounts([]) // No signers!
+          .signers([fakeController])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InsufficientSignatures");
+        expect(err.toString()).to.include("Unauthorized");
       }
     });
   });
@@ -259,10 +253,8 @@ describe("license", () => {
         .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const licenseAfter = await licenseProgram.account.license.fetch(
@@ -287,26 +279,27 @@ describe("license", () => {
         .accountsPartial({
           license: licensePda,
           authorityEntity: entityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
     });
 
-    it("fails without multisig approval", async () => {
+    it("fails without controller signature", async () => {
+      // Try to update license without controller signature
+      const fakeController = Keypair.generate();
       try {
         await licenseProgram.methods
           .updateLicense(false, ipCoreProgram.programId)
           .accountsPartial({
             license: licensePda,
             authorityEntity: entityPda,
+            controller: fakeController.publicKey,
           })
-          .remainingAccounts([]) // No signers!
+          .signers([fakeController])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InsufficientSignatures");
+        expect(err.toString()).to.include("Unauthorized");
       }
     });
 
@@ -323,7 +316,7 @@ describe("license", () => {
       );
 
       try {
-        await ipCoreProgram.methods.createEntity(otherHandle, [], 1).rpc();
+        await ipCoreProgram.methods.createEntity(otherHandle).rpc();
       } catch {
         // Already exists
       }
@@ -334,10 +327,8 @@ describe("license", () => {
           .accountsPartial({
             license: licensePda,
             authorityEntity: otherEntityPda, // Wrong authority!
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
@@ -363,7 +354,7 @@ describe("license", () => {
       );
 
       try {
-        await ipCoreProgram.methods.createEntity(granteeHandle, [], 1).rpc();
+        await ipCoreProgram.methods.createEntity(granteeHandle).rpc();
       } catch {
         // Already exists
       }
@@ -386,10 +377,8 @@ describe("license", () => {
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: granteeEntityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const grant = await licenseProgram.account.licenseGrant.fetch(
@@ -436,7 +425,7 @@ describe("license", () => {
       );
 
       try {
-        await ipCoreProgram.methods.createEntity(granteeHandle2, [], 1).rpc();
+        await ipCoreProgram.methods.createEntity(granteeHandle2).rpc();
       } catch {
         // Already exists
       }
@@ -462,10 +451,8 @@ describe("license", () => {
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: granteeEntity2Pda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const grant = await licenseProgram.account.licenseGrant.fetch(
@@ -482,10 +469,8 @@ describe("license", () => {
             license: licensePda,
             authorityEntity: entityPda,
             granteeEntity: granteeEntityPda,
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
@@ -494,7 +479,7 @@ describe("license", () => {
       }
     });
 
-    it("fails without multisig approval", async () => {
+    it("fails without controller signature", async () => {
       // Create another grantee
       const granteeHandle3 = padBytes("grantee3", 32);
       const [granteeEntity3Pda] = PublicKey.findProgramAddressSync(
@@ -507,11 +492,13 @@ describe("license", () => {
       );
 
       try {
-        await ipCoreProgram.methods.createEntity(granteeHandle3, [], 1).rpc();
+        await ipCoreProgram.methods.createEntity(granteeHandle3).rpc();
       } catch {
         // Already exists
       }
 
+      // Try to create license grant without controller signature
+      const fakeController = Keypair.generate();
       try {
         await licenseProgram.methods
           .createLicenseGrant(new anchor.BN(0), ipCoreProgram.programId)
@@ -519,12 +506,13 @@ describe("license", () => {
             license: licensePda,
             authorityEntity: entityPda,
             granteeEntity: granteeEntity3Pda,
+            controller: fakeController.publicKey,
           })
-          .remainingAccounts([]) // No signers!
+          .signers([fakeController])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InsufficientSignatures");
+        expect(err.toString()).to.include("Unauthorized");
       }
     });
   });
@@ -546,9 +534,7 @@ describe("license", () => {
       );
 
       try {
-        await ipCoreProgram.methods
-          .createEntity(revokeGranteeHandle, [], 1)
-          .rpc();
+        await ipCoreProgram.methods.createEntity(revokeGranteeHandle).rpc();
       } catch {
         // Already exists
       }
@@ -569,10 +555,8 @@ describe("license", () => {
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: revokeGranteeEntityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
     });
 
@@ -590,10 +574,8 @@ describe("license", () => {
           license: licensePda,
           authorityEntity: entityPda,
           rentDestination: creator.publicKey,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Verify grant no longer exists
@@ -605,7 +587,8 @@ describe("license", () => {
       }
     });
 
-    it("fails without multisig approval", async () => {
+    it("fails without controller signature", async () => {
+      const fakeController = Keypair.generate();
       // Create another grant to revoke
       const revokeHandle2 = padBytes("revoke2", 32);
       const [revokeEntity2Pda] = PublicKey.findProgramAddressSync(
@@ -618,7 +601,7 @@ describe("license", () => {
       );
 
       try {
-        await ipCoreProgram.methods.createEntity(revokeHandle2, [], 1).rpc();
+        await ipCoreProgram.methods.createEntity(revokeHandle2).rpc();
       } catch {
         // Already exists
       }
@@ -638,10 +621,8 @@ describe("license", () => {
           license: licensePda,
           authorityEntity: entityPda,
           granteeEntity: revokeEntity2Pda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       try {
@@ -652,12 +633,13 @@ describe("license", () => {
             license: licensePda,
             authorityEntity: entityPda,
             rentDestination: creator.publicKey,
+            controller: fakeController.publicKey,
           })
-          .remainingAccounts([]) // No signers!
+          .signers([fakeController])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InsufficientSignatures");
+        expect(err.toString()).to.include("Unauthorized");
       }
     });
   });
@@ -680,10 +662,8 @@ describe("license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create license for this IP
@@ -698,10 +678,8 @@ describe("license", () => {
           originIp: revokeLicenseIpPda,
           ownerEntity: entityPda,
           derivativeCheck: null,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
     });
 
@@ -718,10 +696,8 @@ describe("license", () => {
           license: revokeLicensePda,
           authorityEntity: entityPda,
           rentDestination: creator.publicKey,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Verify license no longer exists
@@ -733,7 +709,8 @@ describe("license", () => {
       }
     });
 
-    it("fails without multisig approval", async () => {
+    it("fails without controller signature", async () => {
+      const fakeController = Keypair.generate();
       // Create another IP and license to test this
       const contentHash = randomHash();
       const [testIpPda] = PublicKey.findProgramAddressSync(
@@ -747,10 +724,8 @@ describe("license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const [testLicensePda] = PublicKey.findProgramAddressSync(
@@ -764,10 +739,8 @@ describe("license", () => {
           originIp: testIpPda,
           ownerEntity: entityPda,
           derivativeCheck: null,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       try {
@@ -777,12 +750,13 @@ describe("license", () => {
             license: testLicensePda,
             authorityEntity: entityPda,
             rentDestination: creator.publicKey,
+            controller: fakeController.publicKey,
           })
-          .remainingAccounts([]) // No signers!
+          .signers([fakeController])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InsufficientSignatures");
+        expect(err.toString()).to.include("Unauthorized");
       }
     });
   });

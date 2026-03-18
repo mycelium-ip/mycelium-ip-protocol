@@ -28,7 +28,7 @@ The protocol consists of two independent programs:
 │                        ip_core Program                          │
 │  ┌──────────────┐  ┌─────────┐  ┌───────────────────────────┐  │
 │  │ProtocolConfig│  │ Entity  │  │        IpAccount          │  │
-│  │   Treasury   │  │(multisig│  │ (registrant, content_hash)│  │
+│  │   Treasury   │  │(control)│  │ (registrant, content_hash)│  │
 │  └──────────────┘  └─────────┘  └───────────────────────────┘  │
 │                                                                 │
 │  ┌──────────────────┐  ┌────────────────┐  ┌────────────────┐  │
@@ -73,7 +73,7 @@ The core registry program handles IP registration, entity management, and deriva
 | ------------------ | ----------------------------------------- | -------------------------------------------------------- |
 | `ProtocolConfig`   | `["config"]`                              | Protocol settings, fee configuration, treasury reference |
 | `ProtocolTreasury` | `["treasury"]`                            | Authority over SPL token accounts for fees               |
-| `Entity`           | `["entity", creator, handle]`             | On-chain identity with multisig (max 5 controllers)      |
+| `Entity`           | `["entity", creator, handle]`             | On-chain identity with single controller                 |
 | `IpAccount`        | `["ip", registrant_entity, content_hash]` | IP registration with ownership tracking                  |
 | `MetadataSchema`   | `["metadata_schema", id, version]`        | Defines metadata structure                               |
 | `MetadataAccount`  | `["metadata", type, parent, revision]`    | Versioned metadata for entities/IPs                      |
@@ -91,7 +91,7 @@ The core registry program handles IP registration, entity management, and deriva
 **Entity Management**
 
 - `create_entity` — Create on-chain identity
-- `update_entity_controllers` — Modify entity multisig controllers
+- `transfer_entity_control` — Transfer entity control to new controller
 
 **Metadata**
 
@@ -114,7 +114,6 @@ The core registry program handles IP registration, entity management, and deriva
 | Constant               | Value | Description                       |
 | ---------------------- | ----- | --------------------------------- |
 | `MAX_HANDLE_LENGTH`    | 32    | Maximum entity handle length      |
-| `MAX_CONTROLLERS`      | 5     | Maximum multisig controllers      |
 | `MAX_SCHEMA_ID_LENGTH` | 32    | Maximum schema identifier length  |
 | `MAX_VERSION_LENGTH`   | 16    | Maximum version string length     |
 | `MAX_CID_LENGTH`       | 96    | Maximum content identifier length |

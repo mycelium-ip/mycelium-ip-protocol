@@ -155,7 +155,7 @@ Any instruction not listed is invalid.
   ["license", origin_ip]
   ```
 - Fails if PDA already exists.
-- Requires IP owner Entity multisig approval.
+- Requires IP owner Entity controller signature.
 - Validates:
   - `origin_ip` exists and is owned by `ip_core` program.
   - `origin_ip` is NOT a derivative (query for DerivativeLink where child_ip == origin_ip must fail).
@@ -168,7 +168,7 @@ Any instruction not listed is invalid.
 
 ### update_license
 
-- Requires `authority` Entity multisig approval.
+- Requires `authority` Entity controller signature.
 - May update:
   - `derivatives_allowed`
 - Must NOT mutate:
@@ -180,7 +180,7 @@ Any instruction not listed is invalid.
 
 ### revoke_license (Optional)
 
-- Requires `authority` Entity multisig approval.
+- Requires `authority` Entity controller signature.
 - Closes License account.
 - Refunds rent to authority signer.
 - Consideration: Should only be allowed if no active grants exist.
@@ -229,7 +229,7 @@ Any instruction not listed is invalid.
   ["license_grant", license, grantee_entity]
   ```
 - Fails if PDA already exists.
-- Requires License `authority` Entity multisig approval (IP owner grants licenses).
+- Requires License `authority` Entity controller signature (IP owner grants licenses).
 - Validates:
   - `license` exists and is owned by this program.
   - `grantee` exists and is owned by `ip_core` program.
@@ -243,7 +243,7 @@ Any instruction not listed is invalid.
 
 ### revoke_license_grant
 
-- Requires License `authority` Entity multisig approval.
+- Requires License `authority` Entity controller signature.
 - Closes LicenseGrant account.
 - Refunds rent to authority signer.
 - Does NOT require grantee consent.

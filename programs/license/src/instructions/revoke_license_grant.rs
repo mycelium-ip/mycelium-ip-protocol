@@ -5,7 +5,6 @@ use crate::constants::{LICENSE_GRANT_SEED, LICENSE_SEED};
 use crate::error::LicenseError;
 use crate::events::LicenseGrantRevoked;
 use crate::state::{License, LicenseGrant};
-use crate::utils::validation::{extract_signer_keys, validate_multisig_keys};
 
 /// Accounts required for revoke_license_grant instruction.
 #[derive(Accounts)]
@@ -31,6 +30,12 @@ pub struct RevokeLicenseGrant<'info> {
     /// The authority entity (must match license.authority).
     pub authority_entity: Account<'info, Entity>,
 
+    /// The entity controller (must match authority_entity.controller).
+    #[account(
+        constraint = controller.key() == authority_entity.controller @ LicenseError::Unauthorized
+    )]
+    pub controller: Signer<'info>,
+
     /// Destination for rent refund.
     /// CHECK: This is just the recipient of lamports.
     #[account(mut)]
@@ -38,7 +43,6 @@ pub struct RevokeLicenseGrant<'info> {
 
     /// System program.
     pub system_program: Program<'info, System>,
-    // Remaining accounts are signers (authority entity controllers)
 }
 
 /// Revoke a license grant by closing its account.
@@ -48,7 +52,7 @@ pub struct RevokeLicenseGrant<'info> {
 /// * `ip_core_program_id` - The ip_core program ID for validation
 ///
 /// # Errors
-/// * `LicenseError::InsufficientSignatures` - Authority entity multisig threshold not met
+/// * `LicenseError::Unauthorized` - Controller signature mismatch
 /// * `LicenseError::InvalidAuthority` - Authority entity doesn't match license authority
 ///
 /// # Note
@@ -61,14 +65,6 @@ pub fn handler(ctx: Context<RevokeLicenseGrant>, ip_core_program_id: Pubkey) -> 
     if authority_entity.to_account_info().owner != &ip_core_program_id {
         return Err(LicenseError::InvalidAuthority.into());
     }
-
-    // Validate authority entity multisig
-    let signer_keys = extract_signer_keys(ctx.remaining_accounts);
-    validate_multisig_keys(
-        &signer_keys,
-        &authority_entity.controllers,
-        authority_entity.signature_threshold,
-    )?;
 
     // Emit event BEFORE the account is closed (close happens after handler returns)
     emit!(LicenseGrantRevoked {
