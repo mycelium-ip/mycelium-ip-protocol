@@ -9,7 +9,7 @@ pub mod utils;
 
 use instructions::*;
 
-declare_id!("8LcJkHL2RJcijkMwQCVjJMbwmb5Ebbg9UTv3GnxeeofU");
+declare_id!("E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj");
 
 #[program]
 pub mod license {
@@ -26,7 +26,7 @@ pub mod license {
     /// # Requirements
     /// - Origin IP must exist and be owned by ip_core
     /// - Origin IP must NOT be a derivative
-    /// - IP owner entity multisig approval required
+    /// - IP owner entity controller signature required
     pub fn create_license(
         ctx: Context<CreateLicense>,
         derivatives_allowed: bool,
@@ -73,7 +73,7 @@ pub mod license {
     /// # Requirements
     /// - License must exist
     /// - Grantee entity must exist and be owned by ip_core
-    /// - License authority entity multisig approval required
+    /// - License authority entity controller signature required
     pub fn create_license_grant(
         ctx: Context<CreateLicenseGrant>,
         expiration: i64,

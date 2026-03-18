@@ -5,7 +5,6 @@ use crate::constants::LICENSE_SEED;
 use crate::error::LicenseError;
 use crate::events::LicenseCreated;
 use crate::state::{License, LICENSE_SIZE};
-use crate::utils::validation::{extract_signer_keys, validate_multisig_keys};
 
 /// Accounts required for create_license instruction.
 #[derive(Accounts)]
@@ -31,6 +30,12 @@ pub struct CreateLicense<'info> {
     )]
     pub owner_entity: Account<'info, Entity>,
 
+    /// The entity controller (must match owner_entity.controller).
+    #[account(
+        constraint = controller.key() == owner_entity.controller @ LicenseError::Unauthorized
+    )]
+    pub controller: Signer<'info>,
+
     /// Optional: DerivativeLink account to check if this IP is a derivative.
     /// If this account exists where child_ip == origin_ip, creation fails.
     /// CHECK: We only check if it exists and is initialized to determine derivative status.
@@ -42,7 +47,6 @@ pub struct CreateLicense<'info> {
 
     /// System program for account creation.
     pub system_program: Program<'info, System>,
-    // Remaining accounts are signers (owner entity controllers)
 }
 
 /// Create a new license for an IP.
@@ -53,7 +57,7 @@ pub struct CreateLicense<'info> {
 /// * `ip_core_program_id` - The ip_core program ID for validation
 ///
 /// # Errors
-/// * `LicenseError::InsufficientSignatures` - Owner entity multisig threshold not met
+/// * `LicenseError::Unauthorized` - Controller signature mismatch
 /// * `LicenseError::DerivativeCannotCreateLicense` - Origin IP is a derivative
 /// * `LicenseError::InvalidOriginIp` - Origin IP is not owned by ip_core
 pub fn handler(
@@ -73,14 +77,6 @@ pub fn handler(
     if owner_entity.to_account_info().owner != &ip_core_program_id {
         return Err(LicenseError::InvalidAuthority.into());
     }
-
-    // Validate owner entity multisig
-    let signer_keys = extract_signer_keys(ctx.remaining_accounts);
-    validate_multisig_keys(
-        &signer_keys,
-        &owner_entity.controllers,
-        owner_entity.signature_threshold,
-    )?;
 
     // Check if origin IP is a derivative (has a DerivativeLink where child_ip == origin_ip)
     // If derivative_check account is provided and exists, the IP is a derivative

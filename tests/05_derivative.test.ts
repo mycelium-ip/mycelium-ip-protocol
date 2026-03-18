@@ -124,7 +124,7 @@ describe("ip_core derivative with license", () => {
     );
 
     try {
-      await ipCoreProgram.methods.createEntity(handle, [], 1).rpc();
+      await ipCoreProgram.methods.createEntity(handle).rpc();
     } catch {
       // Already created
     }
@@ -142,10 +142,8 @@ describe("ip_core derivative with license", () => {
         registrantEntity: entityPda,
         treasuryTokenAccount: treasuryTokenAccount,
         payerTokenAccount: payerTokenAccount,
+        controller: creator.publicKey,
       })
-      .remainingAccounts([
-        { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-      ])
       .rpc();
 
     // Create child IP
@@ -161,10 +159,8 @@ describe("ip_core derivative with license", () => {
         registrantEntity: entityPda,
         treasuryTokenAccount: treasuryTokenAccount,
         payerTokenAccount: payerTokenAccount,
+        controller: creator.publicKey,
       })
-      .remainingAccounts([
-        { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-      ])
       .rpc();
 
     // Create license for parent IP
@@ -179,10 +175,8 @@ describe("ip_core derivative with license", () => {
         originIp: parentIpPda,
         ownerEntity: entityPda,
         derivativeCheck: null,
+        controller: creator.publicKey,
       })
-      .remainingAccounts([
-        { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-      ])
       .rpc();
 
     // Create license grant for the entity (so it can create derivatives)
@@ -201,10 +195,8 @@ describe("ip_core derivative with license", () => {
         license: licensePda,
         authorityEntity: entityPda,
         granteeEntity: entityPda, // Self-grant for testing
+        controller: creator.publicKey,
       })
-      .remainingAccounts([
-        { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-      ])
       .rpc();
   });
 
@@ -271,10 +263,8 @@ describe("ip_core derivative with license", () => {
           childOwnerEntity: entityPda,
           licenseGrant: licenseGrantPda,
           license: licensePda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const derivativeLink = await ipCoreProgram.account.derivativeLink.fetch(
@@ -308,10 +298,8 @@ describe("ip_core derivative with license", () => {
             childOwnerEntity: entityPda,
             licenseGrant: licenseGrantPda,
             license: licensePda,
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
@@ -320,7 +308,7 @@ describe("ip_core derivative with license", () => {
       }
     });
 
-    it("fails without multisig approval", async () => {
+    it("fails without controller signature", async () => {
       // Create new IPs for this test
       const newParentHash = randomHash();
       const [newParentIpPda] = PublicKey.findProgramAddressSync(
@@ -334,10 +322,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const newChildHash = randomHash();
@@ -352,10 +338,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create license for new parent
@@ -370,10 +354,8 @@ describe("ip_core derivative with license", () => {
           originIp: newParentIpPda,
           ownerEntity: entityPda,
           derivativeCheck: null,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create grant
@@ -392,10 +374,8 @@ describe("ip_core derivative with license", () => {
           license: newLicensePda,
           authorityEntity: entityPda,
           granteeEntity: entityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const [newDerivativePda] = PublicKey.findProgramAddressSync(
@@ -407,6 +387,8 @@ describe("ip_core derivative with license", () => {
         ipCoreProgram.programId,
       );
 
+      // Single-controller test: fails without controller signature
+      const fakeController = Keypair.generate();
       try {
         await ipCoreProgram.methods
           .createDerivativeLink(licenseProgram.programId)
@@ -416,12 +398,13 @@ describe("ip_core derivative with license", () => {
             childOwnerEntity: entityPda,
             licenseGrant: newGrantPda,
             license: newLicensePda,
+            controller: fakeController.publicKey,
           })
-          .remainingAccounts([]) // No signers!
+          .signers([fakeController])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
-        expect(err.toString()).to.include("InsufficientSignatures");
+        expect(err.toString()).to.include("Unauthorized");
       }
     });
 
@@ -439,10 +422,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const newChildHash = randomHash();
@@ -457,10 +438,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const [newDerivativePda] = PublicKey.findProgramAddressSync(
@@ -484,10 +463,8 @@ describe("ip_core derivative with license", () => {
             childOwnerEntity: entityPda,
             licenseGrant: licenseGrantPda, // This is owned by the real license program
             license: licensePda,
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
@@ -509,10 +486,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const newChildHash = randomHash();
@@ -527,10 +502,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create license with derivatives_allowed = false
@@ -545,10 +518,8 @@ describe("ip_core derivative with license", () => {
           originIp: noDerivParentIpPda,
           ownerEntity: entityPda,
           derivativeCheck: null,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create grant (even with grant, derivatives not allowed by license terms)
@@ -567,10 +538,8 @@ describe("ip_core derivative with license", () => {
           license: noDerivLicensePda,
           authorityEntity: entityPda,
           granteeEntity: entityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const [noDerivDerivPda] = PublicKey.findProgramAddressSync(
@@ -591,10 +560,8 @@ describe("ip_core derivative with license", () => {
             childOwnerEntity: entityPda,
             licenseGrant: noDerivGrantPda,
             license: noDerivLicensePda,
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
@@ -616,10 +583,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const newChildHash = randomHash();
@@ -634,10 +599,8 @@ describe("ip_core derivative with license", () => {
           registrantEntity: entityPda,
           treasuryTokenAccount: treasuryTokenAccount,
           payerTokenAccount: payerTokenAccount,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create license
@@ -652,10 +615,8 @@ describe("ip_core derivative with license", () => {
           originIp: expiredParentIpPda,
           ownerEntity: entityPda,
           derivativeCheck: null,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Create a new entity for expired grant
@@ -670,9 +631,7 @@ describe("ip_core derivative with license", () => {
       );
 
       try {
-        await ipCoreProgram.methods
-          .createEntity(expiredGranteeHandle, [], 1)
-          .rpc();
+        await ipCoreProgram.methods.createEntity(expiredGranteeHandle).rpc();
       } catch {
         // Already exists
       }
@@ -699,10 +658,8 @@ describe("ip_core derivative with license", () => {
           license: expiredLicensePda,
           authorityEntity: entityPda,
           granteeEntity: expiredGranteeEntityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       // Transfer child IP to the expired grantee entity
@@ -712,10 +669,8 @@ describe("ip_core derivative with license", () => {
           ip: expiredChildIpPda,
           currentOwnerEntity: entityPda,
           newOwnerEntity: expiredGranteeEntityPda,
+          controller: creator.publicKey,
         })
-        .remainingAccounts([
-          { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-        ])
         .rpc();
 
       const [expiredDerivPda] = PublicKey.findProgramAddressSync(
@@ -736,10 +691,8 @@ describe("ip_core derivative with license", () => {
             childOwnerEntity: expiredGranteeEntityPda,
             licenseGrant: expiredGrantPda,
             license: expiredLicensePda,
+            controller: creator.publicKey,
           })
-          .remainingAccounts([
-            { pubkey: creator.publicKey, isSigner: true, isWritable: false },
-          ])
           .rpc();
         expect.fail("Should have failed");
       } catch (err) {
