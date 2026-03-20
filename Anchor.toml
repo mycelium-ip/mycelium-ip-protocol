@@ -6,12 +6,12 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-ip_core = "8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G"
-license = "E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj"
+ip_core = "ARoG6DV6Mx4w44tM9QGYoMaqXUBM6zCwyMBRDLt5vAap"
+license = "8iA7LYmvxr3SL8ZzTAZtbXfcGGjMpNQz116oeSiAEt1Q"
 
 [programs.localnet]
-ip_core = "8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G"
-license = "E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj"
+ip_core = "ARoG6DV6Mx4w44tM9QGYoMaqXUBM6zCwyMBRDLt5vAap"
+license = "8iA7LYmvxr3SL8ZzTAZtbXfcGGjMpNQz116oeSiAEt1Q"
 
 [registry]
 url = "https://api.apr.dev"
