@@ -16,7 +16,7 @@ The protocol consists of two independent programs:
 ### Design Philosophy
 
 - **Neutral** — No governance mechanisms or arbitration logic
-- **Deterministic** — All accounts are PDA-derived; no randomness or auto-increment IDs
+- **Deterministic** — All accounts are PDA-derived; no randomness
 - **Minimal** — Records claims without judging authorship truth
 - **Non-economic** — No royalty logic or payment distribution in core
 - **Modular** — Programs do not share mutable state
@@ -54,8 +54,8 @@ The protocol is currently deployed on **Solana Devnet**. Both programs share the
 
 | Program     | Program ID                                     | Explorer                                                                                                                   |
 | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **ip_core** | `8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G` | [View on Solana Explorer](https://explorer.solana.com/address/8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G?cluster=devnet) |
-| **license** | `E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj` | [View on Solana Explorer](https://explorer.solana.com/address/E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj?cluster=devnet) |
+| **ip_core** | `ARoG6DV6Mx4w44tM9QGYoMaqXUBM6zCwyMBRDLt5vAap` | [View on Solana Explorer](https://explorer.solana.com/address/ARoG6DV6Mx4w44tM9QGYoMaqXUBM6zCwyMBRDLt5vAap?cluster=devnet) |
+| **license** | `8iA7LYmvxr3SL8ZzTAZtbXfcGGjMpNQz116oeSiAEt1Q` | [View on Solana Explorer](https://explorer.solana.com/address/8iA7LYmvxr3SL8ZzTAZtbXfcGGjMpNQz116oeSiAEt1Q?cluster=devnet) |
 
 > **Note:** These are devnet deployments for development and testing. Mainnet addresses will be published upon mainnet launch.
 
@@ -63,21 +63,22 @@ The protocol is currently deployed on **Solana Devnet**. Both programs share the
 
 ### ip_core
 
-**Program ID:** `8Yv28aduM7K63b7HVuXPj6fYW8pLagHm8AuJCYVxvV6G`
+**Program ID:** `ARoG6DV6Mx4w44tM9QGYoMaqXUBM6zCwyMBRDLt5vAap`
 
 The core registry program handles IP registration, entity management, and derivative tracking.
 
 #### Account Types
 
-| Account            | PDA Seeds                                 | Description                                              |
-| ------------------ | ----------------------------------------- | -------------------------------------------------------- |
-| `ProtocolConfig`   | `["config"]`                              | Protocol settings, fee configuration, treasury reference |
-| `ProtocolTreasury` | `["treasury"]`                            | Authority over SPL token accounts for fees               |
-| `Entity`           | `["entity", creator, handle]`             | On-chain identity with single controller                 |
-| `IpAccount`        | `["ip", registrant_entity, content_hash]` | IP registration with ownership tracking                  |
-| `MetadataSchema`   | `["metadata_schema", id, version]`        | Defines metadata structure                               |
-| `MetadataAccount`  | `["metadata", type, parent, revision]`    | Versioned metadata for entities/IPs                      |
-| `DerivativeLink`   | `["derivative", parent_ip, child_ip]`     | Links derivative IP to parent with license reference     |
+| Account                | PDA Seeds                                 | Description                                              |
+| ---------------------- | ----------------------------------------- | -------------------------------------------------------- |
+| `ProtocolConfig`       | `["config"]`                              | Protocol settings, fee configuration, treasury reference |
+| `ProtocolTreasury`     | `["treasury"]`                            | Authority over SPL token accounts for fees               |
+| `CreatorEntityCounter` | `["entity_counter", creator]`             | Per-creator sequential entity index counter              |
+| `Entity`               | `["entity", creator, index]`              | On-chain identity with single controller                 |
+| `IpAccount`            | `["ip", registrant_entity, content_hash]` | IP registration with ownership tracking                  |
+| `MetadataSchema`       | `["metadata_schema", id, version]`        | Defines metadata structure                               |
+| `MetadataAccount`      | `["metadata", type, parent, revision]`    | Versioned metadata for entities/IPs                      |
+| `DerivativeLink`       | `["derivative", parent_ip, child_ip]`     | Links derivative IP to parent with license reference     |
 
 #### Instructions
 
@@ -113,7 +114,6 @@ The core registry program handles IP registration, entity management, and deriva
 
 | Constant               | Value | Description                       |
 | ---------------------- | ----- | --------------------------------- |
-| `MAX_HANDLE_LENGTH`    | 32    | Maximum entity handle length      |
 | `MAX_SCHEMA_ID_LENGTH` | 32    | Maximum schema identifier length  |
 | `MAX_VERSION_LENGTH`   | 16    | Maximum version string length     |
 | `MAX_CID_LENGTH`       | 96    | Maximum content identifier length |
@@ -122,7 +122,7 @@ The core registry program handles IP registration, entity management, and deriva
 
 ### license
 
-**Program ID:** `E4mqwDTFiwaq1KsfkepcMRcwWDXoLzEAREZgjQcMZpFj`
+**Program ID:** `8iA7LYmvxr3SL8ZzTAZtbXfcGGjMpNQz116oeSiAEt1Q`
 
 The license program implements a two-layer licensing model for IP usage rights.
 

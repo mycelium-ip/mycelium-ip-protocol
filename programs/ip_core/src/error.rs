@@ -23,18 +23,6 @@ pub enum IpCoreError {
     #[msg("Entity has not been initialized")]
     EntityNotInitialized,
 
-    /// The handle contains invalid characters (must be lowercase alphanumeric).
-    #[msg("Invalid handle: must be lowercase alphanumeric (a-z, 0-9)")]
-    InvalidHandle,
-
-    /// The handle exceeds the maximum allowed length.
-    #[msg("Handle too long: maximum length is 32 characters")]
-    HandleTooLong,
-
-    /// The handle is already registered for this creator.
-    #[msg("Handle already exists for this creator")]
-    HandleAlreadyExists,
-
     /// The referenced metadata schema does not exist.
     #[msg("Metadata schema not found")]
     MetadataSchemaNotFound,
@@ -62,10 +50,6 @@ pub enum IpCoreError {
     /// The CID cannot be empty.
     #[msg("CID cannot be empty")]
     EmptyCid,
-
-    /// The handle cannot be empty.
-    #[msg("Handle cannot be empty")]
-    EmptyHandle,
 
     /// Invalid license: not owned by license program.
     #[msg("Invalid license: account not owned by license program")]
@@ -98,4 +82,12 @@ pub enum IpCoreError {
     /// Grantee does not match the child owner entity.
     #[msg("Grantee does not match the child owner entity")]
     InvalidGrantee,
+
+    /// Token accounts are required when registration fee is non-zero.
+    #[msg("Token accounts are required when registration fee is non-zero")]
+    MissingTokenAccount,
+
+    /// Token program is required when registration fee is non-zero.
+    #[msg("Token program is required when registration fee is non-zero")]
+    MissingTokenProgram,
 }
