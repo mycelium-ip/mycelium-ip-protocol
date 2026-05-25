@@ -1,0 +1,168 @@
+{
+  "cid": "bafkreifrtqbnn4obob5hd7ntzcncbydnxcnqs64hon33dgfrlpu4egjj4i",
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "schema_id": "artchive.ip.metadata.v1",
+    "name": "Artchive IP Metadata",
+    "description": "Extended IP metadata schema for artworks issued through Artchive. Supersets `ip.metadata.v1` with artwork-specific physical properties (medium, year created, dimensions) that the canonical schema does not carry.",
+    "version": "1.0.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["title", "creators", "createdAt", "assets"],
+    "properties": {
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+
+      "title": {
+        "type": "string"
+      },
+
+      "description": {
+        "type": "string"
+      },
+
+      "category": {
+        "type": "string"
+      },
+
+      "tags": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+
+      "creators": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "role"],
+          "properties": {
+            "name": { "type": "string" },
+            "role": { "type": "string" }
+          }
+        }
+      },
+
+      "country": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 2,
+        "description": "ISO 3166-1 alpha-2 country code"
+      },
+
+      "city": {
+        "type": "string"
+      },
+
+      "logoCid": {
+        "type": "string",
+        "description": "CID of logo image for IP"
+      },
+
+      "assets": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["cid", "filename", "hash", "role", "fileType"],
+          "properties": {
+            "cid": { "type": "string" },
+            "filename": { "type": "string" },
+            "hash": {
+              "type": "string",
+              "description": "SHA256 of file"
+            },
+            "size": { "type": "number" },
+            "mimeType": { "type": "string" },
+            "fileType": {
+              "type": "string",
+              "enum": [
+                "image",
+                "audio",
+                "video",
+                "document",
+                "archive",
+                "model",
+                "code",
+                "dataset",
+                "text",
+                "link"
+              ]
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "master",
+                "source",
+                "publication",
+                "preview",
+                "draft",
+                "archive",
+                "documentation",
+                "contract",
+                "reference",
+                "deliverable"
+              ]
+            },
+            "version": { "type": "string" }
+          }
+        }
+      },
+
+      "externalLinks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        }
+      },
+
+      "license": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "terms": { "type": "string" }
+        }
+      },
+
+      "medium": {
+        "type": "string",
+        "description": "Physical medium / materials of the artwork (e.g., 'Oil on canvas', 'Bronze sculpture', 'Pen and ink on paper')."
+      },
+
+      "yearCreated": {
+        "type": "string",
+        "description": "Year the artwork was created. May be a single year ('2024') or a range ('2023-2024')."
+      },
+
+      "dimensions": {
+        "type": "object",
+        "description": "Physical dimensions of the artwork. All measurements share the same unit. Width and height are required when dimensions are provided; depth is optional (relevant for 3D works).",
+        "additionalProperties": false,
+        "required": ["unit"],
+        "properties": {
+          "height": {
+            "type": "string",
+            "description": "Height as a string to preserve precision (e.g., '120.5'). Numeric parsing is the consumer's responsibility."
+          },
+          "width": {
+            "type": "string",
+            "description": "Width as a string to preserve precision."
+          },
+          "depth": {
+            "type": "string",
+            "description": "Depth as a string. Optional — omit for 2D works."
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["cm", "mm", "m", "in", "ft"],
+            "description": "Measurement unit shared by height, width, and depth."
+          }
+        }
+      }
+    }
+  }
+}
